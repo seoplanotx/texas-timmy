@@ -6,6 +6,9 @@
 <title>TEXAS TIMMY in: THE RUSTLIN'</title>
 <meta property="og:title" content="TEXAS TIMMY in: THE RUSTLIN'">
 <meta property="og:description" content="UFOs are rustlin' the herd. Fly the crop duster. Save the cows. One daily run.">
+<meta property="og:image" content="https://texas-timmy.vercel.app/api/og">
+<meta property="og:url" content="https://texas-timmy.vercel.app/">
+<meta name="twitter:card" content="summary_large_image">
 <meta name="theme-color" content="#3CBCFC">
 <!-- Analytics (progressive enhancement — the game runs fine without it).
      window.ttTrack forwards events here when the script loads.
@@ -1506,11 +1509,13 @@ function renderPlay(){
   for(const b of r.ebullets){fill(LPNK);ctx.fillRect(b.x-1,b.y-1,3,3);fill(WHT);ctx.fillRect(b.x,b.y,1,1);}
   // particles
   for(const q of r.parts){fill(q.col);ctx.fillRect(Math.round(q.x),Math.round(q.y),q.t>12?2:1,q.t>12?2:1);}
-  // popups
-  for(const q of r.pops)drawTextC(ctx,q.msg,q.x,Math.round(q.y),q.col,1);
-  // wave banner
-  if(r.bannerT>0&&(r.bannerT>20||((r.bannerT>>2)%2===0)))
-    drawTextC(ctx,r.bannerMsg,W/2,100,r.bannerMsg[0]==='!'?RED:WHT,2);
+  // popups (shadowed for legibility against the sky)
+  for(const q of r.pops){const qy=Math.round(q.y);
+    drawTextC(ctx,q.msg,q.x+1,qy+1,BLK,1);drawTextC(ctx,q.msg,q.x,qy,q.col,1);}
+  // wave banner (shadowed)
+  if(r.bannerT>0&&(r.bannerT>20||((r.bannerT>>2)%2===0))){
+    drawTextC(ctx,r.bannerMsg,W/2+2,102,BLK,2);
+    drawTextC(ctx,r.bannerMsg,W/2,100,r.bannerMsg[0]==='!'?RED:WHT,2);}
   if(paused){fill(BLK);ctx.fillRect(0,104,W,20);drawTextC(ctx,'PAUSED',W/2,110,WHT,2);}
 }
 function renderHud(){
@@ -1556,18 +1561,19 @@ function titleItems(){
   const items=[];
   if(CH)items.push({id:'chal',label:'ACCEPT CHALLENGE'});
   const done=lsGet('dailyDone','')===utcDateStr();
-  items.push({id:'daily',label:'DAILY RUN #'+runNumber(utcDateStr())+(done?' *FLOWN*':'')});
+  items.push({id:'daily',label:'DAILY RUN #'+runNumber(utcDateStr())+(done?' FLOWN':'')});
   items.push({id:'free',label:'FREE PLAY'});
-  items.push({id:'livery',label:'LIVERY: < '+curLivery().name+' >'});
+  items.push({id:'livery',label:'< '+curLivery().name+' >'});
   items.push({id:'how',label:'HOW TO PLAY'});
-  items.forEach((it,i)=>it.y=96+i*13); // fixed geometry: render + hit-test agree
+  items.forEach((it,i)=>it.y=90+i*16); // fixed geometry: render + hit-test agree
   return items;
 }
 function renderTitle(){
   // logo
   drawTextC(ctx,'TEXAS TIMMY',W/2+2,32,BLK,3);
   drawTextC(ctx,'TEXAS TIMMY',W/2,30,RED,3);
-  drawTextC(ctx,'in: THE RUSTLIN\'',W/2,52,BRN,1);
+  drawTextC(ctx,'in: THE RUSTLIN\'',W/2+1,53,BLK,1);
+  drawTextC(ctx,'in: THE RUSTLIN\'',W/2,52,WHT,1);
   // little plane flying by
   const tx=(world.t*0.7)%340-40;
   ctx.drawImage(curPlane(),Math.round(tx),64);
@@ -1576,26 +1582,28 @@ function renderTitle(){
     fill(BLK);ctx.fillRect(0,76,W,12);
     drawTextC(ctx,'BEAT '+CH.by+' - '+fmt(CH.target)+'!',W/2,79,YEL,1);}
   const items=titleItems();
-  let y=96;
+  // big 2x menu text on solid backing bars — small text straight on the
+  // scrolling ranch was hard to read
   items.forEach((it,i)=>{
-    y=it.y;
+    const y=it.y;
     const sel=i===titleIdx;
-    if(sel){fill(BLK);ctx.fillRect(28,y-2,200,9);
-      drawText(ctx,'>',32,y,YEL,1);}
-    let col=sel?WHT:BLK;
-    if(it.id==='livery'&&!liveryUnlocked(curLivery()))col=GRY;
-    drawTextC(ctx,it.label,W/2,y,col,1);});
-  y+=13;
-  // livery lock hint
-  const l=curLivery();
+    fill(sel?GOLD:BLK);ctx.fillRect(16,y-2,224,13);
+    if(sel)drawText(ctx,'>',20,y,BLK,2);
+    let col=sel?BLK:WHT;
+    if(it.id==='livery'&&!liveryUnlocked(curLivery()))col=sel?DBRN:GRY;
+    drawTextC(ctx,it.label,W/2,y,col,2);});
+  // stats strip (line 1 becomes the unlock hint while a locked livery is shown)
+  const l=curLivery(),st=lsGetJ('streak',{n:0});
+  fill(BLK);ctx.fillRect(0,172,W,22);
   if(!liveryUnlocked(l)){
-    const needTxt=l.need.refs?(l.need.refs+' PARDNER'+(l.need.refs>1?'S':'')+' TO UNLOCK'):'7-DAY STREAK TO UNLOCK';
-    drawTextC(ctx,'LOCKED: '+needTxt,W/2,y+1,RED,1);}
-  const st=lsGetJ('streak',{n:0});
-  drawTextC(ctx,'BEST '+fmt(+lsGet('best',0))+'  STREAK '+(st.n||0),W/2,176,BLK,1);
-  drawTextC(ctx,'REF CODE '+playerCode+' ('+refCount()+' PARDNERS)',W/2,186,BRN,1);
-  drawTextC(ctx,'WASD/DRAG MOVE  Z/2ND FINGER BOMB',W/2,226,BLK,1);
-  drawTextC(ctx,'M MUTE  C CRT  AUTOFIRE ON',W/2,234,BLK,1);
+    const needTxt='LOCKED: '+(l.need.refs?(l.need.refs+' PARDNER'+(l.need.refs>1?'S':'')+' TO UNLOCK'):'7-DAY STREAK TO UNLOCK');
+    drawTextC(ctx,needTxt,W/2,175,SALM,1);}
+  else drawTextC(ctx,'BEST '+fmt(+lsGet('best',0))+'  STREAK '+(st.n||0),W/2,175,WHT,1);
+  drawTextC(ctx,'REF CODE '+playerCode+' ('+refCount()+' PARDNERS)',W/2,185,SAND,1);
+  // controls footer strip
+  fill(BLK);ctx.fillRect(0,221,W,19);
+  drawTextC(ctx,'WASD/DRAG MOVE  Z/2ND FINGER BOMB',W/2,224,WHT,1);
+  drawTextC(ctx,'M MUTE  C CRT  AUTOFIRE ON',W/2,233,SAND,1);
   if(showHow)renderHow();
 }
 function renderHow(){
@@ -1630,16 +1638,16 @@ function renderOver(){
   if(res.won===true)drawTextC(ctx,'BEAT '+res.by+' BY '+fmt(res.score-res.target)+'!',W/2,118,LGRN,1);
   else if(res.won===false)drawTextC(ctx,'SHORT BY '+fmt(res.target-res.score),W/2,118,RED,1);
   const btns=overBtns(res);
-  let y=132;
+  let y=130;
   btns.forEach((b,i)=>{
     y=b.y;
     const sel=i===overIdx;
-    if(sel){fill(GOLD);ctx.fillRect(52,y-2,152,10);}
-    drawTextC(ctx,b.label,W/2,y,sel?BLK:WHT,1);});
-  y+=13;
+    if(sel){fill(GOLD);ctx.fillRect(36,y-2,184,13);}
+    drawTextC(ctx,b.label,W/2,y,sel?BLK:WHT,2);});
+  y+=16;
   if(res.mode==='daily'){
     const ms=nextMidnightMs();
-    drawTextC(ctx,'NEXT DAILY IN '+msClock(ms),W/2,y+4,SAND,1);}
+    drawTextC(ctx,'NEXT DAILY IN '+msClock(ms),W/2,y+2,SAND,1);}
 }
 function overBtns(res){
   const b=[];
@@ -1647,7 +1655,7 @@ function overBtns(res){
   b.push({id:'chal',label:res.won===true?'RE-CHALLENGE '+res.by:'CHALLENGE A PAL'});
   if(res.mode!=='daily')b.push({id:'again',label:'FLY AGAIN'});
   b.push({id:'menu',label:'MENU'});
-  b.forEach((it,i)=>it.y=132+i*13); // fixed geometry: render + hit-test agree
+  b.forEach((it,i)=>it.y=130+i*16); // fixed geometry: render + hit-test agree
   return b;
 }
 function nextMidnightMs(){
@@ -1685,14 +1693,14 @@ function stateClick(x,y){
     if(showHow){showHow=false;return;}
     const items=titleItems();
     for(let i=0;i<items.length;i++){
-      if(items[i].y!=null&&y>=items[i].y-3&&y<items[i].y+9){
+      if(items[i].y!=null&&y>=items[i].y-2&&y<items[i].y+13){
         if(items[i].id==='livery'){
-          titleIdx=i;cycleLivery(x>W/2+textW(items[i].label,1)/2-14?1:( x<W/2-textW(items[i].label,1)/2+14?-1:1));SFX.menu();return;}
+          titleIdx=i;cycleLivery(x>=W/2?1:-1);SFX.menu();return;}
         titleIdx=i;titleSelect(items[i].id);return;}}
   }else if(state===S_OVER){
     const btns=overBtns(result);
     for(let i=0;i<btns.length;i++)
-      if(btns[i].y!=null&&y>=btns[i].y-3&&y<btns[i].y+10){overIdx=i;overSelect(btns[i].id);return;}
+      if(btns[i].y!=null&&y>=btns[i].y-2&&y<btns[i].y+13){overIdx=i;overSelect(btns[i].id);return;}
   }
 }
 function cycleLivery(dir){
