@@ -7,6 +7,10 @@
 <meta property="og:title" content="TEXAS TIMMY in: THE RUSTLIN'">
 <meta property="og:description" content="UFOs are rustlin' the herd. Fly the crop duster. Save the cows. One daily run.">
 <meta name="theme-color" content="#3CBCFC">
+<!-- Analytics (progressive enhancement — the game runs fine without it).
+     window.ttTrack forwards events here when the script loads.
+     Update data-domain after pointing a custom domain at the deploy. -->
+<script defer data-domain="texastimmy.app" src="https://plausible.io/js/script.js"></script>
 <style>
 html,body{margin:0;padding:0;background:#000;height:100%;overflow:hidden;
   touch-action:none;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;
@@ -1780,6 +1784,13 @@ if(Q.has('debug')){
   resetWorld();
   fit();
   scanCv.style.display=scanOn?'block':'none';
+  // sync referral credits from the backend (silent no-op on static hosting;
+  // the ?refs= dev override always wins for local unlock testing)
+  if(!Q.has('refs')){
+    try{fetch('/api/ref?code='+playerCode)
+      .then(r=>r.ok?r.json():null)
+      .then(d=>{if(d&&d.ok&&typeof d.refs==='number')lsSet('refs',d.refs);})
+      .catch(()=>{});}catch(e){}}
   document.addEventListener('visibilitychange',()=>{
     if(document.hidden&&state===S_PLAY)paused=true;
     if(!document.hidden)fit(); // re-fit when a background-loaded tab becomes visible
