@@ -54,7 +54,8 @@ around the game. The game is the payload; the loops are the point.
 ## Instrumentation
 
 Every loop surface fires through one wrapper — `window.ttTrack(event, props)`
-(console in dev, Plausible in prod):
+(console in dev; Vercel Web Analytics custom events in prod, Plausible if a
+tag is ever added):
 
 | Event | Fires when |
 |---|---|

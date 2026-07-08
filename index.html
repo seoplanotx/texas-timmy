@@ -10,10 +10,11 @@
 <meta property="og:url" content="https://texas-timmy.vercel.app/">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="theme-color" content="#3CBCFC">
-<!-- Analytics (progressive enhancement — the game runs fine without it).
-     window.ttTrack forwards events here when the script loads.
-     Update data-domain after pointing a custom domain at the deploy. -->
-<script defer data-domain="texastimmy.app" src="https://plausible.io/js/script.js"></script>
+<!-- Analytics: Vercel Web Analytics (progressive enhancement — the game runs
+     fine without it; the script 404s silently anywhere but the Vercel deploy).
+     window.ttTrack forwards custom events through the va() queue below. -->
+<script>window.va=window.va||function(){(window.vaq=window.vaq||[]).push(arguments);};</script>
+<script defer src="/_vercel/insights/script.js"></script>
 <style>
 html,body{margin:0;padding:0;background:#000;height:100%;overflow:hidden;
   touch-action:none;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;
@@ -102,9 +103,10 @@ function runNumber(dateStr){ // #N: days since EPOCH, #1 on the epoch day itself
 function baseUrl(){return location.origin+location.pathname;}
 
 /* ============ 4. ANALYTICS ============ */
-window.ttTrack=function(ev,props){ // single wrapper: console in dev, plausible if present
+window.ttTrack=function(ev,props){ // single wrapper: console always, analytics when present
   try{console.log('[ttTrack]',ev,props||{});}catch(e){}
-  try{if(window.plausible)window.plausible(ev,{props:props||{}});}catch(e){}
+  try{if(window.va)window.va('event',{name:ev,data:props||{}});}catch(e){}      // Vercel Web Analytics
+  try{if(window.plausible)window.plausible(ev,{props:props||{}});}catch(e){}    // Plausible, if ever added
 };
 
 // Referral landing
