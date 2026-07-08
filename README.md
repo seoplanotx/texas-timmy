@@ -90,9 +90,10 @@ The game is fully playable static. The Vercel deploy adds:
 
 - `api/ref.js` — referral credits (Upstash Redis REST; silent no-op without
   env vars). Set `UPSTASH_REDIS_REST_URL` + `UPSTASH_REDIS_REST_TOKEN`.
-- `api/og.jsx` — dynamic 1200×630 challenge OG card (`@vercel/og`).
 - `api/unfurl.js` + `middleware.js` — bot-only rewrite so crawlers get
   per-challenge OG tags while humans get the static CDN-cached game.
+- `og.png` — 1200×630 share card rendered by the game's own canvas engine
+  (per-challenge numbers ride in `og:title`).
 
 ## Controls
 

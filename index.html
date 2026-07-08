@@ -6,7 +6,7 @@
 <title>TEXAS TIMMY in: THE RUSTLIN'</title>
 <meta property="og:title" content="TEXAS TIMMY in: THE RUSTLIN'">
 <meta property="og:description" content="UFOs are rustlin' the herd. Fly the crop duster. Save the cows. One daily run.">
-<meta property="og:image" content="https://texas-timmy.vercel.app/api/og">
+<meta property="og:image" content="https://texas-timmy.vercel.app/og.png">
 <meta property="og:url" content="https://texas-timmy.vercel.app/">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="theme-color" content="#3CBCFC">
@@ -1333,7 +1333,8 @@ function renderShareCard(res){
   g.drawImage(pl,0,0,26,13,90,150,26*9,13*9);
   // header
   drawText(g,'TEXAS TIMMY',60,40,BLK,10);drawText(g,'TEXAS TIMMY',52,32,WHT,10);
-  drawText(g,res.mode==='daily'?('DAILY RUN #'+res.runNo):'FREE FLIGHT',56,110,BLK,4);
+  drawText(g,res.og?'SAVE THE HERD - ONE RUN A DAY'
+    :(res.mode==='daily'?('DAILY RUN #'+res.runNo):'FREE FLIGHT'),56,110,BLK,4);
   // stats
   const sx=480,sy=280;
   g.fillStyle=PAL[BLK];g.fillRect(sx-30,sy-30,660,290);
@@ -1342,7 +1343,7 @@ function renderShareCard(res){
   drawText(g,'SCORE  '+fmt(res.score),sx,sy,WHT,7);
   drawText(g,'HERD   '+res.saved+'/15 SAVED',sx,sy+70,LGRN,7);
   drawText(g,'WAVE   '+res.wave,sx,sy+140,SKY,7);
-  drawText(g,String(location.host||'texastimmy.app')+location.pathname.replace(/index\.html$/,''),60,560,WHT,5);
+  drawText(g,'texas-timmy.vercel.app',60,560,WHT,5); // canonical host on every card
   return c;
 }
 async function doShare(res,kind){

@@ -13,7 +13,9 @@ export default function handler(req) {
 
   const qs = new URLSearchParams(u.searchParams);
   const playUrl = `${u.origin}/?${qs.toString()}`;
-  const img = `${u.origin}/api/og?by=${encodeURIComponent(by)}&t=${t}`;
+  // static card rendered by the game's own share-card engine (committed as og.png);
+  // the per-challenge numbers live in og:title, which crawlers display prominently
+  const img = `${u.origin}/og.png`;
   const title = `BEAT ${by} — ${t.toLocaleString('en-US')} — TEXAS TIMMY`;
   const desc = 'A challenge has been issued, pardner. Same seed, same saucers — beat the score.';
 
